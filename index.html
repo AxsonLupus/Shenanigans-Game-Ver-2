@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz & Reaction Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url('BG1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(3px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        .page.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 18px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.05em;
+        }
+
+        .option:hover {
+            background: #fff;
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #e8eaf6;
+        }
+
+        .option.correct {
+            border-color: #4caf50;
+            background: #c8e6c9;
+        }
+
+        .option.wrong {
+            border-color: #f44336;
+            background: #ffcdd2;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .game-area {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: #f5f7fa;
+            border-radius: 15px;
+            margin: 20px 0;
+            overflow: hidden;
+            touch-action: none;
+            border: 2px solid #ddd;
+        }
+
+        .dot {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            touch-action: none;
+            animation: dotFloat 3s ease-in-out infinite;
+            box-shadow: 0 8px 20px rgba(255, 71, 87, 0.4);
+        }
+        
+        @keyframes dotFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .dot:hover {
+            transform: scale(1.15) translateY(-10px);
+            box-shadow: 0 12px 30px rgba(255, 71, 87, 0.6);
+        }
+
+        .dot:active {
+            transform: scale(0.85);
+        }
+        
+        .dot-glow {
+            box-shadow: 0 0 20px #ff4757, 0 0 40px #ff4757;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #667eea;
+            font-size: 1.5em;
+        }
+
+        .message {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+
+        .message.success {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .message.fail {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        .congrats {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .congrats h2 {
+            color: #4caf50;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .congrats p {
+            font-size: 1.3em;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        
+        .gift-image-container {
+            margin: 30px 0;
+        }
+        
+        .gift-image {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 3px solid #fff;
+        }
+
+        .youtube-link {
+            display: inline-block;
+            background: #ff0000;
+            color: white;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .youtube-link:hover {
+            background: #cc0000;
+            transform: translateY(-2px);
+        }
+
+        .password-page {
+            text-align: center;
+        }
+
+        .password-page h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .password-page p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            outline: none;
+        }
+
+        .password-input:focus {
+            border-color: #764ba2;
+        }
+
+        .password-error {
+            color: #f44336;
+            font-size: 1em;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .try-again-btn {
+            background: #ff9800;
+        }
+
+        .try-again-btn:hover {
+            background: #f57c00;
+        }
+
+        .intro-page {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .intro-page h1 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .intro-page .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .intro-page .game-icon {
+            font-size: 4em;
+            margin: 20px 0;
+        }
+        
+        .intro-page .game-icon img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .intro-page .start-game-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 18px 45px;
+            font-size: 1.3em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .intro-page .start-game-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .intro-page .btn-julian {
+            background: #667eea;
+        }
+
+        .intro-page .btn-maxine {
+            background: #f5576c;
+        }
+
+        .intro-page .btn-julian:hover {
+            background: #764ba2;
+        }
+
+        .intro-page .btn-maxine:hover {
+            background: #e04757;
+        }
+
+        .player-selection {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .quiz-progress {
+            font-size: 0.9em;
+            color: #999;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .game-area {
+                height: 300px;
+            }
+
+            .dot {
+                width: 70px;
+                height: 70px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .game-area {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Intro Page -->
+        <div id="introPage" class="page active">
+            <div class="intro-page">
+                <h1>Welcome to the<br>Shenanigan Game</h1>
+                <div class="game-icon">
+                    <img src="game1.png" alt="Game Icon">
+                </div>
+                <p class="subtitle">Test your knowledge and reflexes!</p>
+                <p class="subtitle">Select Your Player:</p>
+                <div class="player-selection">
+                    <button class="start-game-btn btn-julian" onclick="startGame('julian')">Julian</button>
+                    <button class="start-game-btn btn-maxine" onclick="startGame('maxine')">Maxine</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Page -->
+        <div id="quizPage" class="page">
+            <h1>Quiz Challenge</h1>
+            <div class="quiz-progress">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">8</span></div>
+            <div id="quizContainer">
+                <div class="question" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+            </div>
+            <button id="submitQuiz" class="btn" disabled>Submit Answer</button>
+        </div>
+
+        <!-- Reaction Game Page -->
+        <div id="reactionPage" class="page">
+            <h1>⚡ Reaction Challenge</h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Time Left</div>
+                    <div class="stat-value" id="timer">20</div>
+                </div>
+            </div>
+            <p style="text-align: center; color: #666; margin-bottom: 10px;">Click the dot 50 times within 20 seconds!</p>
+            <div class="game-area" id="gameArea">
+                <div class="dot" id="dot"></div>
+            </div>
+            <div id="gameMessage"></div>
+        </div>
+
+        <!-- Password Page -->
+        <div id="passwordPage" class="page">
+            <div class="password-page">
+                <h2> Congratulations! </h2>
+                <p>You have now completed the online gift game.<br>Please enter the Code to get your gift:</p>
+                <input type="text" id="passwordInput" class="password-input" placeholder="Enter your code here">
+                <button id="submitPassword" class="btn">Submit Code</button>
+                <div id="passwordError" class="password-error">❌ Incorrect code. Please try again.</div>
+            </div>
+        </div>
+
+        <!-- Congratulations Page -->
+        <div id="congratsPage" class="page">
+            <div class="congrats">
+                <h2> Congratulations! </h2>
+                <p>You've completed all the challenges!</p>
+                <p>Here's your special gift:</p>
+                <div class="gift-image-container">
+                    <img id="giftImage" src="" alt="Your Gift" class="gift-image">
+                </div>
+                <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="youtube-link">
+                    Watch Your Prize! 
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedPlayer = '';
+        let correctPassword = '';
+        let giftImagePath = '';
+
+        const GIFT_IMAGES = {
+            julian: 'julian.png',
+            maxine: 'maxine.png'
+        };
+
+        function startGame(player) {
+            selectedPlayer = player;
+            if (player === 'julian') {
+                correctPassword = 'italian';
+                giftImagePath = GIFT_IMAGES.julian;
+            } else if (player === 'maxine') {
+                correctPassword = 'maxkim';
+                giftImagePath = GIFT_IMAGES.maxine;
+                quizQuestions = [...quizQuestions, ...maxineQuestions];
+            }
+            
+            document.getElementById('introPage').classList.remove('active');
+            document.getElementById('quizPage').classList.add('active');
+            currentQuestionIndex = 0;
+            loadQuestion();
+        }
+
+        let quizQuestions = [
+            {
+                question: "What school activity did the Shenanigans participate in?",
+                options: [
+                    { text: "A. Fun Run", value: "A" },
+                    { text: "B. Physics Cup", value: "B" },
+                    { text: "C. Haunted House", value: "C" },
+                    { text: "D. Table Tennis", value: "D" }
+                ],
+                correct: "B"
+            },
+            {
+                question: "Who was the Professors that knows that Maxine Nicole Landicho fainted after donating blood?",
+                options: [
+                    { text: "A. Sir De Goma, Sir Elcid, Sir Eric, Sir JP, Ma'am Layno, and Dean Kelly", value: "A" },
+                    { text: "B. Sir De Goma, Sir Elcid, and Sir Eric", value: "B" },
+                    { text: "C. Sir De Goma, Sir Elcid, and Sir JP", value: "C" },
+                    { text: "D. Sir De Goma, Sir Elcid, and Sir Geldof", value: "D" }
+                ],
+                correct: "C"
+            },
+            {
+                question: "Which member/s of the Shenanigans is a teaser?",
+                options: [
+                    { text: "A. Maxine", value: "A" },
+                    { text: "B. Aaron", value: "B" },
+                    { text: "C. Julian", value: "C" }
+                ],
+                correct: "A"
+            },
+            {
+                question: "Who is the hugot Master?",
+                options: [
+                    { text: "A. Maxine", value: "A" },
+                    { text: "B. Aaron", value: "B" },
+                    { text: "C. Julian", value: "C" }
+                ],
+                correct: "A"
+            },
+            {
+                question: "When did the group played table Tennis, who was the one who played with the Shenanigans?",
+                options: [
+                    { text: "A. Jpro", value: "A" },
+                    { text: "B. Josh", value: "B" },
+                    { text: "C. Guill", value: "C" },
+                    { text: "D. Kim", value: "D" }
+                ],
+                correct: "B"
+            },
+            {
+                question: "Where does the Shenanigans usually eat when together?",
+                options: [
+                    { text: "A. Wings Place", value: "A" },
+                    { text: "B. Mcdo", value: "B" },
+                    { text: "C. Dairy Queen", value: "C" },
+                    { text: "D. Jollibee", value: "D" }
+                ],
+                correct: "C"
+            },
+            {
+                question: "In October 1, 2035, who will treat the Shenanigans to WolfGang?",
+                options: [
+                    { text: "A. Aaron", value: "A" },
+                    { text: "B. Julian", value: "B" },
+                    { text: "C. Maxine", value: "C" },
+                    { text: "D. Wala Joke lang Yon", value: "D" }
+                ],
+                correct: "C"
+            }
+        ];
+
+        const maxineQuestions = [
+            {
+                question: "What is the first Rizz that Kim did that you wished lasted longer?",
+                options: [
+                    { text: "A. holding hands (correct answer)", value: "A" },
+                    { text: "B. Promising that he will be there for you", value: "B" },
+                    { text: "C. 'Mag-asawa sa next zootopia movie'", value: "C" },
+                    { text: "D. Pinakain ng popcorn tapos 'accidentally nahawakan lips'", value: "D" }
+                ],
+                correct: "A"
+            },
+            {
+                question: "What did you do when Kim told you that he will be there for you?",
+                options: [
+                    { text: "A. hug him", value: "A" },
+                    { text: "B. said thank you", value: "B" },
+                    { text: "C. thumbs up (correct answer)", value: "C" },
+                    { text: "D. blush and ran away", value: "D" }
+                ],
+                correct: "C"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let selectedAnswer = null;
+
+        function loadQuestion() {
+            const currentQ = quizQuestions[currentQuestionIndex];
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('totalQuestions').textContent = quizQuestions.length;
+            document.getElementById('questionText').textContent = currentQ.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            currentQ.options.forEach((option) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.dataset.answer = option.value;
+                optionDiv.textContent = option.text;
+                optionDiv.addEventListener('click', selectOption);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            selectedAnswer = null;
+            document.getElementById('submitQuiz').disabled = true;
+        }
+
+        function selectOption(e) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            e.target.classList.add('selected');
+            selectedAnswer = e.target.dataset.answer;
+            document.getElementById('submitQuiz').disabled = false;
+        }
+
+        document.getElementById('submitQuiz').addEventListener('click', () => {
+            const currentQ = quizQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            
+            if (selectedAnswer === currentQ.correct) {
+                options.forEach(opt => {
+                    if (opt.dataset.answer === currentQ.correct) {
+                        opt.classList.add('correct');
+                    }
+                });
+                
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex < quizQuestions.length) {
+                        loadQuestion();
+                    } else {
+                        document.getElementById('quizPage').classList.remove('active');
+                        document.getElementById('reactionPage').classList.add('active');
+                        startReactionGame();
+                    }
+                }, 1500);
+            } else {
+                options.forEach(opt => {
+                    if (opt.dataset.answer === selectedAnswer) {
+                        opt.classList.add('wrong');
+                    }
+                    if (opt.dataset.answer === currentQ.correct) {
+                        opt.classList.add('correct');
+                    }
+                });
+                
+                document.getElementById('submitQuiz').disabled = true;
+                
+                setTimeout(() => {
+                    currentQuestionIndex = 0;
+                    loadQuestion();
+                }, 2000);
+            }
+        });
+
+        let score = 0;
+        let timeLeft = 20;
+        let timerInterval;
+        const dot = document.getElementById('dot');
+        const gameArea = document.getElementById('gameArea');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+
+        function moveDot() {
+            const maxX = gameArea.clientWidth - dot.clientWidth;
+            const maxY = gameArea.clientHeight - dot.clientHeight;
+            const randomX = Math.floor(Math.random() * maxX);
+            const randomY = Math.floor(Math.random() * maxY);
+            
+            dot.style.left = randomX + 'px';
+            dot.style.top = randomY + 'px';
+        }
+
+        function startReactionGame() {
+            score = 0;
+            timeLeft = 20;
+            scoreDisplay.textContent = score;
+            timerDisplay.textContent = timeLeft;
+            document.getElementById('gameMessage').innerHTML = '';
+            
+            moveDot();
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    endGame(false);
+                }
+            }, 1000);
+        }
+
+        dot.addEventListener('click', handleDotClick);
+        dot.addEventListener('touchstart', handleDotClick);
+
+        function handleDotClick(e) {
+            e.preventDefault();
+            if (timeLeft > 0) {
+                score++;
+                scoreDisplay.textContent = score;
+                
+                // Add glow effect
+                dot.classList.add('dot-glow');
+                setTimeout(() => dot.classList.remove('dot-glow'), 200);
+                
+                moveDot();
+                
+                if (score >= 30) {
+                    endGame(true);
+                }
+            }
+        }
+
+        function endGame(success) {
+            clearInterval(timerInterval);
+            
+            const gameMessage = document.getElementById('gameMessage');
+            gameMessage.innerHTML = '';
+            
+            if (success) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message success';
+                messageDiv.textContent = '🎉 Great job! You reached 50 clicks!';
+                gameMessage.appendChild(messageDiv);
+                
+                setTimeout(() => {
+                    document.getElementById('reactionPage').classList.remove('active');
+                    document.getElementById('passwordPage').classList.add('active');
+                }, 2000);
+            } else {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message fail';
+                messageDiv.textContent = `⏰ Time's up! You got ${score} clicks. You need 50 to proceed.`;
+                gameMessage.appendChild(messageDiv);
+                
+                const tryAgainBtn = document.createElement('button');
+                tryAgainBtn.className = 'btn try-again-btn';
+                tryAgainBtn.textContent = 'Try Again';
+                tryAgainBtn.onclick = () => {
+                    startReactionGame();
+                };
+                gameMessage.appendChild(tryAgainBtn);
+            }
+        }
+
+        const passwordInput = document.getElementById('passwordInput');
+        const submitPasswordBtn = document.getElementById('submitPassword');
+        const passwordError = document.getElementById('passwordError');
+
+        submitPasswordBtn.addEventListener('click', () => {
+            const enteredPassword = passwordInput.value.trim();
+            
+            if (enteredPassword === correctPassword) {
+                passwordError.style.display = 'none';
+                document.getElementById('passwordPage').classList.remove('active');
+                document.getElementById('congratsPage').classList.add('active');
+                document.getElementById('giftImage').src = giftImagePath;
+            } else {
+                passwordError.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        });
+
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitPasswordBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
