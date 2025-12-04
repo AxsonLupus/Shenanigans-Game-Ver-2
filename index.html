@@ -526,7 +526,7 @@
                 <div class="gift-image-container">
                     <img id="giftImage" src="" alt="Your Gift" class="gift-image">
                 </div>
-                <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="youtube-link">
+                <a id="youtubeLink" href="" target="_blank" class="youtube-link">
                     🎁 Watch Your Prize! 🎁
                 </a>
             </div>
@@ -537,6 +537,7 @@
         let selectedPlayer = '';
         let correctPassword = '';
         let giftImagePath = '';
+        let youtubeLink = '';
 
         const GIFT_IMAGES = {
             julian: 'Julian.png',
@@ -546,6 +547,11 @@
         const PLAYER_PASSCODES = {
             julian: 'provalo',
             maxine: 'maxpain'
+        };
+
+        const YOUTUBE_LINKS = {
+            julian: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            maxine: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
         };
 
         function selectPlayer(player) {
@@ -559,10 +565,12 @@
             if (selectedPlayer === 'julian') {
                 correctPassword = 'italian';
                 giftImagePath = GIFT_IMAGES.julian;
+                youtubeLink = YOUTUBE_LINKS.julian;
                 quizQuestions = julianQuestions;
             } else if (selectedPlayer === 'maxine') {
                 correctPassword = 'maxkim';
                 giftImagePath = GIFT_IMAGES.maxine;
+                youtubeLink = YOUTUBE_LINKS.maxine;
                 quizQuestions = maxineQuestions;
             }
             
@@ -721,6 +729,7 @@
         let quizQuestions = [];
         let currentQuestionIndex = 0;
         let selectedAnswer = null;
+        let isProcessingAnswer = false;
 
         function loadQuestion() {
             const currentQ = quizQuestions[currentQuestionIndex];
@@ -753,8 +762,13 @@
         }
 
         document.getElementById('submitQuiz').addEventListener('click', () => {
+            if (isProcessingAnswer) return; // Prevent multiple clicks
+            
             const currentQ = quizQuestions[currentQuestionIndex];
             const options = document.querySelectorAll('.option');
+            
+            isProcessingAnswer = true;
+            document.getElementById('submitQuiz').disabled = true;
             
             if (selectedAnswer === currentQ.correct) {
                 options.forEach(opt => {
@@ -766,6 +780,7 @@
                 setTimeout(() => {
                     currentQuestionIndex++;
                     if (currentQuestionIndex < quizQuestions.length) {
+                        isProcessingAnswer = false;
                         loadQuestion();
                     } else {
                         document.getElementById('quizPage').classList.remove('active');
@@ -783,10 +798,9 @@
                     }
                 });
                 
-                document.getElementById('submitQuiz').disabled = true;
-                
                 setTimeout(() => {
                     currentQuestionIndex = 0;
+                    isProcessingAnswer = false;
                     loadQuestion();
                 }, 2000);
             }
@@ -894,6 +908,7 @@
                 document.getElementById('passwordPage').classList.remove('active');
                 document.getElementById('congratsPage').classList.add('active');
                 document.getElementById('giftImage').src = giftImagePath;
+                document.getElementById('youtubeLink').href = youtubeLink;
             } else {
                 passwordError.style.display = 'block';
                 passwordInput.value = '';
