@@ -36,9 +36,9 @@
         }
 
         .container {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(50px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(50px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 20px;
             padding: 40px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
@@ -458,16 +458,27 @@
                 <p class="subtitle">Test your knowledge and reflexes!</p>
                 <p class="subtitle">Select Your Player:</p>
                 <div class="player-selection">
-                    <button class="start-game-btn btn-julian" onclick="startGame('julian')">Julian</button>
-                    <button class="start-game-btn btn-maxine" onclick="startGame('maxine')">Maxine</button>
+                    <button class="start-game-btn btn-julian" onclick="selectPlayer('julian')">Julian</button>
+                    <button class="start-game-btn btn-maxine" onclick="selectPlayer('maxine')">Maxine</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Player Passcode Page -->
+        <div id="playerPasscodePage" class="page">
+            <div class="password-page">
+                <h2>Enter Your Passcode</h2>
+                <p id="passcodePlayerName"></p>
+                <input type="text" id="playerPasscodeInput" class="password-input" placeholder="Enter your passcode">
+                <button id="submitPlayerPasscode" class="btn">Submit Passcode</button>
+                <div id="passcodeError" class="password-error">❌ Incorrect passcode. Please try again.</div>
             </div>
         </div>
 
         <!-- Quiz Page -->
         <div id="quizPage" class="page">
             <h1>Quiz Challenge</h1>
-            <div class="quiz-progress">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">8</span></div>
+            <div class="quiz-progress">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">7</span></div>
             <div id="quizContainer">
                 <div class="question" id="questionText"></div>
                 <div class="options" id="optionsContainer"></div>
@@ -498,7 +509,7 @@
         <!-- Password Page -->
         <div id="passwordPage" class="page">
             <div class="password-page">
-                <h2> Congratulations! </h2>
+                <h2>🎉 Congratulations! 🎉</h2>
                 <p>You have now completed the online gift game.<br>Please enter the Code to get your gift:</p>
                 <input type="text" id="passwordInput" class="password-input" placeholder="Enter your code here">
                 <button id="submitPassword" class="btn">Submit Code</button>
@@ -509,14 +520,14 @@
         <!-- Congratulations Page -->
         <div id="congratsPage" class="page">
             <div class="congrats">
-                <h2> Congratulations! </h2>
+                <h2>🎊 Congratulations! 🎊</h2>
                 <p>You've completed all the challenges!</p>
                 <p>Here's your special gift:</p>
                 <div class="gift-image-container">
                     <img id="giftImage" src="" alt="Your Gift" class="gift-image">
                 </div>
                 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" class="youtube-link">
-                    Watch Your Prize! 
+                    🎁 Watch Your Prize! 🎁
                 </a>
             </div>
         </div>
@@ -532,117 +543,182 @@
             maxine: 'Maxine.png'
         };
 
-        function startGame(player) {
+        const PLAYER_PASSCODES = {
+            julian: 'provalo',
+            maxine: 'maxpain'
+        };
+
+        function selectPlayer(player) {
             selectedPlayer = player;
-            if (player === 'julian') {
+            document.getElementById('introPage').classList.remove('active');
+            document.getElementById('playerPasscodePage').classList.add('active');
+            document.getElementById('passcodePlayerName').textContent = `Welcome, ${player.charAt(0).toUpperCase() + player.slice(1)}! Please enter your passcode to continue.`;
+        }
+
+        function startGame() {
+            if (selectedPlayer === 'julian') {
                 correctPassword = 'italian';
                 giftImagePath = GIFT_IMAGES.julian;
-            } else if (player === 'maxine') {
+                quizQuestions = julianQuestions;
+            } else if (selectedPlayer === 'maxine') {
                 correctPassword = 'maxkim';
                 giftImagePath = GIFT_IMAGES.maxine;
-                quizQuestions = [...quizQuestions, ...maxineQuestions];
+                quizQuestions = maxineQuestions;
             }
             
-            document.getElementById('introPage').classList.remove('active');
+            document.getElementById('playerPasscodePage').classList.remove('active');
             document.getElementById('quizPage').classList.add('active');
             currentQuestionIndex = 0;
             loadQuestion();
         }
 
-        let quizQuestions = [
+        const julianQuestions = [
             {
-                question: "What school activity did the Shenanigans participate in?",
+                question: "What was the first school event the shenanigans participated in?",
                 options: [
-                    { text: "A. Fun Run", value: "A" },
-                    { text: "B. Physics Cup", value: "B" },
-                    { text: "C. Haunted House", value: "C" },
-                    { text: "D. Table Tennis", value: "D" }
+                    { text: "A. Physics Cup", value: "A" },
+                    { text: "B. Fun Run", value: "B" },
+                    { text: "C. Escape Room", value: "C" },
+                    { text: "D. Devils Game", value: "D" }
                 ],
                 correct: "B"
             },
             {
-                question: "Who was the Professors that knows that Maxine Nicole Landicho fainted after donating blood?",
+                question: "What shooting game did Julian participated with Josh, Maxine, and Aaron?",
                 options: [
-                    { text: "A. Sir De Goma, Sir Elcid, Sir Eric, Sir JP, Ma'am Layno, and Dean Kelly", value: "A" },
-                    { text: "B. Sir De Goma, Sir Elcid, and Sir Eric", value: "B" },
-                    { text: "C. Sir De Goma, Sir Elcid, and Sir JP", value: "C" },
-                    { text: "D. Sir De Goma, Sir Elcid, and Sir Geldof", value: "D" }
-                ],
-                correct: "C"
-            },
-            {
-                question: "Which member/s of the Shenanigans is a teaser?",
-                options: [
-                    { text: "A. Maxine", value: "A" },
-                    { text: "B. Aaron", value: "B" },
-                    { text: "C. Julian", value: "C" }
-                ],
-                correct: "A"
-            },
-            {
-                question: "Who is the hugot Master?",
-                options: [
-                    { text: "A. Maxine", value: "A" },
-                    { text: "B. Aaron", value: "B" },
-                    { text: "C. Julian", value: "C" }
-                ],
-                correct: "A"
-            },
-            {
-                question: "When did the group played table Tennis, who was the one who played with the Shenanigans?",
-                options: [
-                    { text: "A. Jpro", value: "A" },
-                    { text: "B. Josh", value: "B" },
-                    { text: "C. Guill", value: "C" },
-                    { text: "D. Kim", value: "D" }
+                    { text: "A. Call of Duty", value: "A" },
+                    { text: "B. Valorant", value: "B" },
+                    { text: "C. Rules of Survival", value: "C" },
+                    { text: "D. Risk of Rain", value: "D" }
                 ],
                 correct: "B"
             },
             {
-                question: "Where does the Shenanigans usually eat when together?",
+                question: "What is the name of the nation the shenanigans are part of?",
                 options: [
-                    { text: "A. Wings Place", value: "A" },
-                    { text: "B. Mcdo", value: "B" },
-                    { text: "C. Dairy Queen", value: "C" },
-                    { text: "D. Jollibee", value: "D" }
+                    { text: "A. Solstice", value: "A" },
+                    { text: "B. Transitus", value: "B" },
+                    { text: "C. Salvasean", value: "C" },
+                    { text: "D. Kingdom of Khione", value: "D" }
+                ],
+                correct: "A"
+            },
+            {
+                question: "During the DND session, what character was sacrificed to save Jaden's Character?",
+                options: [
+                    { text: "A. Sterben", value: "A" },
+                    { text: "B. Corino", value: "B" },
+                    { text: "C. Fergosa", value: "C" },
+                    { text: "D. Rook", value: "D" }
                 ],
                 correct: "C"
             },
             {
-                question: "In October 1, 2035, who will treat the Shenanigans to WolfGang?",
+                question: "When Julian Participated in a Valorant event held at circuit, what prizes did he win?",
                 options: [
-                    { text: "A. Aaron", value: "A" },
-                    { text: "B. Julian", value: "B" },
-                    { text: "C. Maxine", value: "C" },
-                    { text: "D. Wala Joke lang Yon", value: "D" }
+                    { text: "A. Headset, Jacket, Mouse, and keyboard", value: "A" },
+                    { text: "B. Headset, Jacket, and keyboard", value: "B" },
+                    { text: "C. Skyflakes", value: "C" },
+                    { text: "D. All of the above", value: "D" }
                 ],
-                correct: "C"
+                correct: "A"
+            },
+            {
+                question: "When the friend group went to Enchanted Kingdom, Italia joined us. What drink did Julian treat Italia?",
+                options: [
+                    { text: "A. Iced Tea", value: "A" },
+                    { text: "B. Royal", value: "B" },
+                    { text: "C. Coke", value: "C" },
+                    { text: "D. Sprite", value: "D" }
+                ],
+                correct: "B"
+            },
+            {
+                question: "Who does Julian like?",
+                options: [
+                    { text: "A. Italia", value: "A" },
+                    { text: "B. A", value: "B" },
+                    { text: "C. B", value: "C" },
+                    { text: "D. Italian", value: "D" }
+                ],
+                correct: "A"
             }
         ];
 
         const maxineQuestions = [
             {
-                question: "What is the first Rizz that Kim did that you wished lasted longer?",
+                question: "What first table tennis technique did Maxine teach the Shenanigans?",
                 options: [
-                    { text: "A. holding hands", value: "A" },
-                    { text: "B. Promising that he will be there for you", value: "B" },
-                    { text: "C. 'Mag-asawa sa next zootopia movie'", value: "C" },
-                    { text: "D. Pinakain ng popcorn tapos 'accidentally nahawakan lips'", value: "D" }
+                    { text: "A. Serve", value: "A" },
+                    { text: "B. Counter", value: "B" },
+                    { text: "C. How to hit the ball", value: "C" },
+                    { text: "D. Spin", value: "D" }
+                ],
+                correct: "C"
+            },
+            {
+                question: "During the SGE, what was the first attraction/ride did Aaron and Maxine go to?",
+                options: [
+                    { text: "A. Doramon 3D", value: "A" },
+                    { text: "B. Donky Kong Roller Coaster", value: "B" },
+                    { text: "C. Harry Potter Roller Coaster", value: "C" },
+                    { text: "D. Dream Coaster", value: "D" }
                 ],
                 correct: "A"
             },
             {
-                question: "What did you do when Kim told you that he will be there for you?",
+                question: "What is the first limited edition drink, food, or item did Maxine introduce to Aaron that led them to collecting everything? (Give the Name) Note: Julian also tried it.",
                 options: [
-                    { text: "A. hug him", value: "A" },
-                    { text: "B. said thank you", value: "B" },
-                    { text: "C. thumbs up", value: "C" },
-                    { text: "D. blush and ran away", value: "D" }
+                    { text: "A. Dairy Queen", value: "A" },
+                    { text: "B. Macao Milk Tea", value: "B" },
+                    { text: "C. Mcdo", value: "C" },
+                    { text: "D. Jollibee", value: "D" }
+                ],
+                correct: "B"
+            },
+            {
+                question: "Who was included when the shenanigans participated in an escape room in Mapua Makati?",
+                options: [
+                    { text: "A. Beyonce", value: "A" },
+                    { text: "B. Sean", value: "B" },
+                    { text: "C. Maxine", value: "C" },
+                    { text: "D. Julia", value: "D" }
+                ],
+                correct: "C"
+            },
+            {
+                question: "What was the reason Aaron and Julian got second embarrassment?",
+                options: [
+                    { text: "A. Maxine told use how Kim fed her popcorn at the movies", value: "A" },
+                    { text: "B. Maxine gave Kim a thumb up when he told her something sweet", value: "B" },
+                    { text: "C. Kim told Maxine that they might be a husband and wife once Zootopia 3 is released", value: "C" },
+                    { text: "D. Kim held Maxine's hand while sharing a jacket during a commute", value: "D" }
+                ],
+                correct: "B"
+            },
+            {
+                question: "What did Julian and Aaron wear that removed their dignity when the group was data gathering?",
+                options: [
+                    { text: "A. Make up", value: "A" },
+                    { text: "B. Ukata", value: "B" },
+                    { text: "C. Gown", value: "C" },
+                    { text: "D. Hanbok", value: "D" }
+                ],
+                correct: "D"
+            },
+            {
+                question: "Who is the person that Maxine Nicole Landicho is Lovesick with? (choose the best answer)",
+                options: [
+                    { text: "A. Lolong something", value: "A" },
+                    { text: "B. Kim", value: "B" },
+                    { text: "C. Kim Laurence Del Rosario", value: "C" },
+                    { text: "D. Maxkim", value: "D" }
                 ],
                 correct: "C"
             }
         ];
 
+        let quizQuestions = [];
         let currentQuestionIndex = 0;
         let selectedAnswer = null;
 
@@ -830,8 +906,30 @@
                 submitPasswordBtn.click();
             }
         });
+
+        // Player Passcode Validation
+        const playerPasscodeInput = document.getElementById('playerPasscodeInput');
+        const submitPlayerPasscodeBtn = document.getElementById('submitPlayerPasscode');
+        const passcodeError = document.getElementById('passcodeError');
+
+        submitPlayerPasscodeBtn.addEventListener('click', () => {
+            const enteredPasscode = playerPasscodeInput.value.trim();
+            
+            if (enteredPasscode === PLAYER_PASSCODES[selectedPlayer]) {
+                passcodeError.style.display = 'none';
+                startGame();
+            } else {
+                passcodeError.style.display = 'block';
+                playerPasscodeInput.value = '';
+                playerPasscodeInput.focus();
+            }
+        });
+
+        playerPasscodeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitPlayerPasscodeBtn.click();
+            }
+        });
     </script>
 </body>
-
 </html>
-
