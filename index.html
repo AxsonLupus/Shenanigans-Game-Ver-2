@@ -411,7 +411,6 @@
             text-align: center;
         }
 
-        /* Mobile Optimizations */
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -448,7 +447,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Intro Page -->
         <div id="introPage" class="page active">
             <div class="intro-page">
                 <h1>Welcome to the<br>Shenanigan Game</h1>
@@ -461,10 +459,13 @@
                     <button class="start-game-btn btn-julian" onclick="selectPlayer('julian')">Julian</button>
                     <button class="start-game-btn btn-maxine" onclick="selectPlayer('maxine')">Maxine</button>
                 </div>
+                <div style="margin-top: 30px; padding-top: 30px; border-top: 2px solid #ddd;">
+                    <p class="subtitle" style="font-size: 1em; color: #888;">Just want to play the reaction game?</p>
+                    <button class="start-game-btn" style="background: #ff9800;" onclick="skipToReactionGame()">Play Reaction Game Only</button>
+                </div>
             </div>
         </div>
 
-        <!-- Player Passcode Page -->
         <div id="playerPasscodePage" class="page">
             <div class="password-page">
                 <h2>Enter Your Passcode</h2>
@@ -475,7 +476,6 @@
             </div>
         </div>
 
-        <!-- Quiz Page -->
         <div id="quizPage" class="page">
             <h1>Quiz Challenge</h1>
             <div class="quiz-progress">Question <span id="currentQuestion">1</span> of <span id="totalQuestions">7</span></div>
@@ -486,7 +486,6 @@
             <button id="submitQuiz" class="btn" disabled>Submit Answer</button>
         </div>
 
-        <!-- Reaction Game Page -->
         <div id="reactionPage" class="page">
             <h1>⚡ Reaction Challenge</h1>
             <div class="stats">
@@ -506,7 +505,6 @@
             <div id="gameMessage"></div>
         </div>
 
-        <!-- Password Page -->
         <div id="passwordPage" class="page">
             <div class="password-page">
                 <h2>🎉 Congratulations! 🎉</h2>
@@ -517,7 +515,6 @@
             </div>
         </div>
 
-        <!-- Congratulations Page -->
         <div id="congratsPage" class="page">
             <div class="congrats">
                 <h2>🎊 Congratulations! 🎊</h2>
@@ -762,7 +759,7 @@
         }
 
         document.getElementById('submitQuiz').addEventListener('click', () => {
-            if (isProcessingAnswer) return; // Prevent multiple clicks
+            if (isProcessingAnswer) return;
             
             const currentQ = quizQuestions[currentQuestionIndex];
             const options = document.querySelectorAll('.option');
@@ -852,7 +849,6 @@
                 score++;
                 scoreDisplay.textContent = score;
                 
-                // Add glow effect
                 dot.classList.add('dot-glow');
                 setTimeout(() => dot.classList.remove('dot-glow'), 200);
                 
@@ -896,33 +892,6 @@
             }
         }
 
-        const passwordInput = document.getElementById('passwordInput');
-        const submitPasswordBtn = document.getElementById('submitPassword');
-        const passwordError = document.getElementById('passwordError');
-
-        submitPasswordBtn.addEventListener('click', () => {
-            const enteredPassword = passwordInput.value.trim();
-            
-            if (enteredPassword === correctPassword) {
-                passwordError.style.display = 'none';
-                document.getElementById('passwordPage').classList.remove('active');
-                document.getElementById('congratsPage').classList.add('active');
-                document.getElementById('giftImage').src = giftImagePath;
-                document.getElementById('youtubeLink').href = youtubeLink;
-            } else {
-                passwordError.style.display = 'block';
-                passwordInput.value = '';
-                passwordInput.focus();
-            }
-        });
-
-        passwordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                submitPasswordBtn.click();
-            }
-        });
-
-        // Player Passcode Validation
         const playerPasscodeInput = document.getElementById('playerPasscodeInput');
         const submitPlayerPasscodeBtn = document.getElementById('submitPlayerPasscode');
         const passcodeError = document.getElementById('passcodeError');
@@ -945,6 +914,12 @@
                 submitPlayerPasscodeBtn.click();
             }
         });
+
+        function skipToReactionGame() {
+            document.getElementById('introPage').classList.remove('active');
+            document.getElementById('reactionPage').classList.add('active');
+            startReactionGame();
+        }
     </script>
 </body>
 </html>
