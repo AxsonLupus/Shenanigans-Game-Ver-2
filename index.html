@@ -498,7 +498,7 @@
                     <div class="stat-value" id="timer">20</div>
                 </div>
             </div>
-            <p style="text-align: center; color: #666; margin-bottom: 10px;">Click the dot 70 times within 20 seconds!</p>
+            <p style="text-align: center; color: #666; margin-bottom: 10px;">Click the dot 55 times within 20 seconds!</p>
             <div class="game-area" id="gameArea">
                 <div class="dot" id="dot"></div>
             </div>
@@ -854,7 +854,7 @@
                 
                 moveDot();
                 
-                if (score >= 70) {
+                if (score >= 55) {
                     endGame(true);
                 }
             }
@@ -869,7 +869,7 @@
             if (success) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message success';
-                messageDiv.textContent = '🎉 Great job! You reached 70 clicks!';
+                messageDiv.textContent = '🎉 Great job! You reached 55 clicks!';
                 gameMessage.appendChild(messageDiv);
                 
                 setTimeout(() => {
@@ -879,7 +879,7 @@
             } else {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message fail';
-                messageDiv.textContent = `⏰ Time's up! You got ${score} clicks. You need 70 to proceed.`;
+                messageDiv.textContent = `⏰ Time's up! You got ${score} clicks. You need 55 to proceed.`;
                 gameMessage.appendChild(messageDiv);
                 
                 const tryAgainBtn = document.createElement('button');
