@@ -547,7 +547,7 @@
         };
 
         const YOUTUBE_LINKS = {
-            julian: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            julian: 'https://youtu.be/y0dxST2LDjQ?si=Lv6eM3wBiAqIEEc1',
             maxine: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
         };
 
@@ -922,7 +922,7 @@
                 
                 moveDot();
                 
-                if (score >= 55) {
+                if (score >= 1) {
                     endGame(true);
                 }
             }
@@ -988,6 +988,33 @@
             document.getElementById('reactionPage').classList.add('active');
             startReactionGame();
         }
+               const passwordInput = document.getElementById('passwordInput');
+        const submitPasswordBtn = document.getElementById('submitPassword');
+        const passwordError = document.getElementById('passwordError');
+
+        submitPasswordBtn.addEventListener('click', () => {
+            const enteredPassword = passwordInput.value.trim().toLowerCase();
+            
+            if (enteredPassword === correctPassword) {
+                passwordError.style.display = 'none';
+                document.getElementById('passwordPage').classList.remove('active');
+                document.getElementById('congratsPage').classList.add('active');
+                
+                // Set the gift image and YouTube link
+                document.getElementById('giftImage').src = giftImagePath;
+                document.getElementById('youtubeLink').href = youtubeLink;
+            } else {
+                passwordError.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        });
+
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitPasswordBtn.click();
+            }
+        });
     </script>
 </body>
 </html>
